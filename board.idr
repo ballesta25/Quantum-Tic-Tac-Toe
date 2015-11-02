@@ -20,6 +20,41 @@ index : Vect k (Fin n) -> Board k n -> Space
 index _       (Point s) = s
 index (i::is) (Row xs)  = index is (index i xs)
 
-||| Returns the ((2^k) choose 2) length n lines through the given board.  
+||| Returns the ((2^k) choose 2) length n rows through the given board.  
 ||| This is the set of lines on which a player could win.
-lines : Board k n -> List (Line n)
+rows : Board k n -> List (Line n)
+rows (Point _) = []
+rows row@(Row {k=Z} _) = [row]
+rows board@(Row xs) = (concatMap rows xs) ++ ?perpendicular ++ ?diagonal
+
+Backtrack : Type
+Backtrack = (List (Sigma (Nat,Nat) (uncurry Board)), Nat)
+
+||| A Board structure 'zoomed in' to focus on a sub-part
+||| d is the number of dimensions zoomed in
+FocusBoard : (k : Nat) -> (n : Nat) -> (d : Fin (S k)) -> Type
+FocusBoard k n d = (Board (k `minus` finToNat d) n, Vect (finToNat d) Backtrack)
+
+
+Whole : Board k n -> FocusBoard k n 0
+Whole b ?= (b, the (Vect 0 Backtrack) [])
+
+lemma0 : (n: Nat) -> minus n 0 = n
+lemma0 = proof
+  intros
+  induction n
+  compute
+  trivial
+  intros
+  compute
+  trivial
+
+Board.Whole_lemma_1 = proof
+  intro
+  intro
+  rewrite lemma0 k
+  intros
+  trivial
+
+-- Zoom : (Fin n) -> {p : LT d k} -> FocusBoard k n d -> FocusBoard k n (FS d)
+

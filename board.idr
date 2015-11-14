@@ -20,12 +20,12 @@ index : Vect k (Fin n) -> Board k n -> Space
 index _       (Point s) = s
 index (i::is) (Row xs)  = index is (index i xs)
 
-||| Returns the ((2^k) choose 2) length n rows through the given board.  
+||| Returns the ((2^k) choose 2) + k * (n-2)^(k-1) length n rows through the given board.  
 ||| This is the set of lines on which a player could win.
 rows : Board k n -> List (Line n)
 rows (Point _) = []
 rows row@(Row {k=Z} _) = [row]
-rows board@(Row xs) = (concatMap rows xs) ++ ?perpendicular ++ ?diagonal
+rows board@(Row {k} xs) = concatMap rows xs ++ concatMap rows (the (Vect n (Board k n)) ?perpendicular) ++ concatMap rows (the (Vect n (Board k n)) ?diagonal) ++ concatMap rows (the (Vect n (Board k n)) ?perp_diag)
 
 Backtrack : Type
 Backtrack = (List (Sigma (Nat,Nat) (uncurry Board)), Nat)

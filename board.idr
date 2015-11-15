@@ -9,6 +9,9 @@ data Board : Nat -> Nat -> Type where
      Point : Space -> Board Z n
      Row  : Vect n (Board k n) -> Board (S k) n
 
+unRow : Board (S k) n -> Vect n (Board k n) 
+unRow (Row xs) = xs
+
 newBoard : (k : Nat) -> (n : Nat) -> Board k n
 newBoard Z n = Point Empty
 newBoard (S k) n = Row $ replicate n (newBoard k n)
@@ -20,12 +23,16 @@ index : Vect k (Fin n) -> Board k n -> Space
 index _       (Point s) = s
 index (i::is) (Row xs)  = index is (index i xs)
 
+perpendicular : Vect n (Board (S p) n) -> Vect n (Board (S p) n)
+perpendicular = map Row . transpose . map unRow
+
+
 ||| Returns the ((2^k) choose 2) + k * (n-2)^(k-1) length n rows through the given board.  
 ||| This is the set of lines on which a player could win.
 rows : Board k n -> List (Line n)
 rows (Point _) = []
 rows row@(Row {k=Z} _) = [row]
-rows board@(Row {k} xs) = concatMap rows xs ++ concatMap rows (the (Vect n (Board k n)) ?perpendicular) ++ concatMap rows (the (Vect n (Board k n)) ?diagonal) ++ concatMap rows (the (Vect n (Board k n)) ?perp_diag)
+rows board@(Row {k=S p} xs) = concatMap rows xs ++ concatMap rows (the (Vect n (Board (S p) n)) $ perpendicular xs) ++ concatMap rows (the (Vect n (Board p n)) ?diagonal) ++ concatMap rows (the (Vect n (Board p n)) ?perp_diag)
 
 Backtrack : Type
 Backtrack = (List (Sigma (Nat,Nat) (uncurry Board)), Nat)

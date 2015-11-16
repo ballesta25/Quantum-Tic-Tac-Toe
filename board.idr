@@ -26,12 +26,15 @@ index (i::is) (Row xs)  = index is (index i xs)
 perpendicular : Board (S (S k)) n -> Board (S (S k)) n
 perpendicular = Row . map Row . transpose . map unRow . unRow
 
+diagonal :  Board (S (S k)) n -> Board (S k) n
+diagonal = Row . diag . map unRow . unRow
+
 ||| Returns the ((2^k) choose 2) + k * (n-2)^(k-1) length n rows through the given board.  
 ||| This is the set of lines on which a player could win.
 rows : Board k n -> List (Line n)
 rows (Point _) = []
 rows row@(Row {k=Z} _) = [row]
-rows board@(Row {k=S p} xs) = concatMap rows xs ++ concatMap rows (the (Vect n (Board (S p) n)) (unRow $ perpendicular board)) ++ concatMap rows (the (Vect n (Board p n)) ?diagonal) ++ concatMap rows (the (Vect n (Board p n)) ?perp_diag)
+rows board@(Row {k=S p} xs) = concatMap rows xs ++ concatMap rows (unRow $ perpendicular board) ++ rows (diagonal board) ++ rows (diagonal . Row . reverse . unRow $ board)
 
 Backtrack : Type
 Backtrack = (List (Sigma (Nat,Nat) (uncurry Board)), Nat)

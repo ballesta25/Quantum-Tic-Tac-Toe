@@ -31,6 +31,7 @@ diagonal = Row . diag . map unRow . unRow
 
 ||| Returns the ((2^k) choose 2) + k * (n-2)^(k-1) length n rows through the given board.  
 ||| This is the set of lines on which a player could win.
+||| Includes some duplicates.
 rows : Board k n -> List (Line n)
 rows (Point _) = []
 rows row@(Row {k=Z} _) = [row]
